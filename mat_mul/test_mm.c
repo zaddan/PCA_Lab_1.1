@@ -35,7 +35,7 @@ main(int argc, char *argv[]) {
   int num_arg_matrices;
 
   if (argc != 4) {
-    printf("usage: debug_perf test_set matrix_dimension_size\n");
+    //printf("usage: debug_perf test_set matrix_dimension_size\n");
     exit(1);
   }
   int debug_perf = atoi(argv[1]);
@@ -53,7 +53,7 @@ main(int argc, char *argv[]) {
   for (i = 0; i < num_arg_matrices; ++i) {
     r[i] = (double *)my_malloc(sizeof(double) * matrix_dimension_size * matrix_dimension_size);
     if (gen_sub_matrix(0, test_set, i, r[i], 0, matrix_dimension_size - 1, 1, 0, matrix_dimension_size - 1, 1, 1) == NULL) {
-      printf("inconsistency in gen_sub_matrix\n");
+      //printf("inconsistency in gen_sub_matrix\n");
       exit(1);
     }
   }  
@@ -70,10 +70,12 @@ main(int argc, char *argv[]) {
   if (debug_perf == 0) {
     // print each of the sub matrices
     for (i = 0; i < num_arg_matrices; ++i) {
-      printf("argument matrix %d\n", i);
+    ; 
+        // printf("argument matrix %d\n", i);
      // print_matrix(r[i], matrix_dimension_size);
     }
-    printf("result matrix\n");
+   ; 
+    //printf("result matrix\n");
     //print_matrix(result[n], matrix_dimension_size);
   } else {
     double sum = 0.0;
@@ -81,7 +83,7 @@ main(int argc, char *argv[]) {
     for (i = 0; i < matrix_dimension_size * matrix_dimension_size; ++i) {
       sum += result[n][i];
     }
-    printf("%f\n", sum);
+    //printf("%f\n", sum);
   }
 }
 

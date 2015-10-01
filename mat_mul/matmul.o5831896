@@ -1,0 +1,10 @@
+TACC: Starting up job 5831896
+TACC: Setting up parallel environment for MVAPICH2+mpispawn.
+TACC: Starting parallel tasks...
+/home1/03448/zaddan/.bashrc: line 4: /home1/03448/zaddan/.local/: No such file or directory
+ 
+TACC: Shutdown complete. Exiting.
+
+real	0m5.481s
+user	0m0.677s
+sys	0m0.194s

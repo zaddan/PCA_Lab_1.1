@@ -1,0 +1,30 @@
+TACC: Starting up job 5831895
+TACC: Setting up parallel environment for MVAPICH2+mpispawn.
+TACC: Starting parallel tasks...
+/home1/03448/zaddan/.bashrc: line 4: /home1/03448/zaddan/.local/: No such file or directory
+argument matrix 0
+argument matrix 1
+argument matrix 2
+argument matrix 3
+argument matrix 4
+argument matrix 5
+argument matrix 6
+argument matrix 7
+result matrix
+[c482-903.stampede.tacc.utexas.edu:mpispawn_0][child_handler] MPI process (rank: 4, pid: 67916) exited with status 14
+argument matrix 0
+argument matrix 1
+argument matrix 2
+argument matrix 3
+argument matrix 4
+argument matrix 5
+argument matrix 6
+argument matrix 7
+result matrix
+TACC: MPI job exited with code: 1
+ 
+TACC: Shutdown complete. Exiting.
+
+real	1m13.917s
+user	0m0.393s
+sys	0m0.152s
