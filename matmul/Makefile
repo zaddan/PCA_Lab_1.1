@@ -5,9 +5,9 @@ test_mm: *.c
 #  	gcc -g -DDEBUG test_mm.c gen_matrix.c my_malloc.c -o test_mm
 
 run_debug:
-#	mpirun --mca orte_base_help_aggregate 0 -np 4 mat_mul 0 0 6
+	mpirun --mca orte_base_help_aggregate 0 -np 4 mat_mul 0 0 6
 #	echo "----------------------------------------------"
-	mpirun mat_mul 0 0 6
+	#mpirun mat_mul 0 0 6
 # 	mpi_run  0 0 10
 
 run_performance:
