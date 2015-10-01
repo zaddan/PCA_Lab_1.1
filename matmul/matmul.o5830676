@@ -1,0 +1,5 @@
+TACC: Starting up job 5830676
+TACC: Setting up parallel environment for MVAPICH2+mpispawn.
+ERROR: -n option requested 8 hosts, only 1 are available!
+ERROR: Number of hosts (requested through -n) plus offset (via -o) exceeds the total number of slots available.
+TACC: MPI job exited with code: 1
