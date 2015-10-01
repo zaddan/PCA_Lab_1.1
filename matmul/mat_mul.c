@@ -39,7 +39,7 @@ void print_matrix(double *result, int numOfRows, int numOfCols) {
 //}
  
 main(int argc, char *argv[])  {
-  MPI_Request reqs[2];
+    MPI_Request reqs[2];
   MPI_Status stats[2];
   
   double **r;
@@ -188,17 +188,18 @@ main(int argc, char *argv[])  {
  
 
   /// print the result 
- /* int printed = 0;
-  if (rank != 0) { 
-      MPI_Recv(&printed,1,MPI_INT, (rank - 1), tag,MPI_COMM_WORLD, stats); 
-  } 
-  //print_matrix(result, resultRowSize, resultColumnSize);
+// 
+//  int printed = 0;
+//  if (rank != 0) { 
+//      MPI_Recv(&printed,1,MPI_INT, (rank - 1), tag,MPI_COMM_WORLD, stats); 
+//  } 
+//  print_matrix(result, resultRowSize, resultColumnSize);
+//
+//  if (rank != numtasks - 1) { 
+//      MPI_Send(&printed,1,MPI_INT, (rank + 1), tag,MPI_COMM_WORLD); 
+//  } 
+//
 
-  if (rank != numtasks - 1) { 
-      MPI_Send(&printed,1,MPI_INT, (rank + 1), tag,MPI_COMM_WORLD); 
-  } 
-
-*/
   // rc = MPI_Get_count(&Stat, MPI_CHAR, &count);
   //printf("Task %d: Received %d char(s) from task %d with tag %d \n",
   //       rank, count, Stat.MPI_SOURCE, Stat.MPI_TAG);
