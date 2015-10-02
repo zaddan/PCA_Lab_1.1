@@ -39,7 +39,6 @@ void print_matrix(double *result, int numOfRows, int numOfCols) {
 //}
  
 main(int argc, char *argv[])  {
-  printf("asdf\n"); 
     MPI_Request reqs[2];
   MPI_Status stats[2];
   
@@ -64,8 +63,7 @@ main(int argc, char *argv[])  {
   /*printf("matrix_dimension_size %d\n", matrix_dimension_size);*/
   /*printf("numtasks%d\n", numtasks);*/
           
-//   num_arg_matrices = init_gen_sub_matrix(test_set);
-  num_arg_matrices = 2;
+   num_arg_matrices = init_gen_sub_matrix(test_set);
   //--- allocating the space for matrix  
   r = (double **)my_malloc(sizeof(double *) * num_arg_matrices);
   int resultColumnSize =  matrix_dimension_size;
@@ -157,8 +155,9 @@ main(int argc, char *argv[])  {
   double *rcvBuffer = (double *) my_malloc(sizeof(double) * m * n);
   tag = 0; //possible change later 
   int MatrixDone = 0;
-  while(MatrixDone < (num_arg_matrices-1)) {
-	  while(1) { 
+  while(1) {
+	  tag =0; 
+      while(1) { 
 		  //--- calculatee the matrix 
 		  for (i=0; i<m; i++) {
 			  // for each row of c
@@ -176,7 +175,7 @@ main(int argc, char *argv[])  {
 		  }
 		  tag++;
 		  if(tag>=numtasks){
-			  break; 
+              break; 
 		  }else {
 
 			  //           printf("tage is %d\n", tag); 
@@ -187,24 +186,28 @@ main(int argc, char *argv[])  {
 		  MPI_Waitall(2, reqs, stats);
 		  b = rcvBuffer;
 	  }
-	  MatrixDone++;
-	  a = result;
-	  b = r[MatrixDone+1];
+      MatrixDone++;
+	  if (MatrixDone == (num_arg_matrices -1)) {
+          break;
+      }
+      a = result;
+	  result = r[MatrixDone];
+      b = r[MatrixDone+1];
   }
  
 
   /// print the result 
 // 
-//  int printed = 0;
-//  if (rank != 0) { 
-//      MPI_Recv(&printed,1,MPI_INT, (rank - 1), tag,MPI_COMM_WORLD, stats); 
-//  } 
-//  print_matrix(result, resultRowSize, resultColumnSize);
-//
-//  if (rank != numtasks - 1) { 
-//      MPI_Send(&printed,1,MPI_INT, (rank + 1), tag,MPI_COMM_WORLD); 
-//  } 
-//
+  int printed = 0;
+  if (rank != 0) { 
+      MPI_Recv(&printed,1,MPI_INT, (rank - 1), tag,MPI_COMM_WORLD, stats); 
+  } 
+  print_matrix(result, resultRowSize, resultColumnSize);
+
+  if (rank != numtasks - 1) { 
+      MPI_Send(&printed,1,MPI_INT, (rank + 1), tag,MPI_COMM_WORLD); 
+  } 
+
 
   // rc = MPI_Get_count(&Stat, MPI_CHAR, &count);
   //printf("Task %d: Received %d char(s) from task %d with tag %d \n",

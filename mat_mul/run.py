@@ -14,10 +14,18 @@ def sourceFileParse(sourceFileName, dest, numOfCores, matSize):
                 if ("numOfCores" in line.split()):
                     fWrite.write("#SBATCH -n " + str(numOfCores) + "\n"); 
                 elif ("time" in line.split()):
-                    modifiedLine = line.split()
-                    modifiedLine[4]= matSize 
-                    newLine = " ".join(modifiedLine)
-                    fWrite.write(newLine)
+                    if (sourceFileName == "test_mm.sbatch"): 
+                        modifiedLine = line.split()
+                        modifiedLine[4]= matSize 
+                        newLine = " ".join(modifiedLine)
+                        fWrite.write(newLine)
+                    else:
+                        modifiedLine = line.split()
+                        modifiedLine[5]= matSize 
+                        newLine = " ".join(modifiedLine)
+                        fWrite.write(newLine)
+                
+
                 else:
                     fWrite.write(line)
 
@@ -28,6 +36,8 @@ def main():
 #    inputFileName = "mat_mul.sbatch" 
 #    numOfCores = 5
 #    
+    
+    os.system("make");
     mode = sys.argv[1]
     numOfCores = sys.argv[2]
     matrixDim = sys.argv[3]
