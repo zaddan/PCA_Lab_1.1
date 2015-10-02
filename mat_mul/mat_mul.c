@@ -202,7 +202,7 @@ main(int argc, char *argv[])  {
   if (rank != 0) { 
       MPI_Recv(&printed,1,MPI_INT, (rank - 1), tag,MPI_COMM_WORLD, stats); 
   } 
-  print_matrix(result, resultRowSize, resultColumnSize);
+  //print_matrix(result, resultRowSize, resultColumnSize);
 
   if (rank != numtasks - 1) { 
       MPI_Send(&printed,1,MPI_INT, (rank + 1), tag,MPI_COMM_WORLD); 

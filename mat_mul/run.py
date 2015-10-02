@@ -12,7 +12,10 @@ def sourceFileParse(sourceFileName, dest, numOfCores, matSize):
         with f:                                                                 
             for line in f:                                                      
                 if ("numOfCores" in line.split()):
-                    fWrite.write("#SBATCH -n " + str(numOfCores) + "\n"); 
+                    if not(sourceFileName == "test_mm.sbatch"): 
+                        fWrite.write("#SBATCH -n " + str(numOfCores) + "\n"); 
+                    else:
+                        fWrite.write(line)
                 elif ("time" in line.split()):
                     if (sourceFileName == "test_mm.sbatch"): 
                         modifiedLine = line.split()
