@@ -77,9 +77,9 @@ main(int argc, char *argv[])  {
   double* result = (double *)my_malloc(sizeof(double) * resultRowSize*resultColumnSize);
   
   // ---- generating two sub_matrices
-  for (i = 0; i < 2; ++i) {
+  for (i = 0; i < num_arg_matrices; ++i) {
       r[i] = (double *)my_malloc(sizeof(double) * resultRowSize* resultColumnSize);
-      if (i % 2 == 0) { //generate rows
+      if (i == 0) { //generate rows
           if (gen_sub_matrix(0, test_set, i, r[i], colLow, colHigh, 1, rowLow, rowHigh, 1, 1) == NULL) {
               printf("inconsistency in gen_sub_matrix\n");
               exit(1);
@@ -157,34 +157,39 @@ main(int argc, char *argv[])  {
   double *rcvBuffer = (double *) my_malloc(sizeof(double) * m * n);
   tag = 0; //possible change later 
   int MatrixDone = 0;
-  while(1) { 
-      //--- calculatee the matrix 
-      for (i=0; i<m; i++) {
-          // for each row of c
-          for (j=0; j<p; j++) {
-              // for each column of c
-              sum = 0.0f; // temporary value
-              for (k=0; k<n; k++) {
-                  // dot product of row from a and column from b
-                  sum += a[i*n+ k]*b[k*p+j];
-              }
+  while(MatrixDone < (num_arg_matrices-1)) {
+	  while(1) { 
+		  //--- calculatee the matrix 
+		  for (i=0; i<m; i++) {
+			  // for each row of c
+			  for (j=0; j<p; j++) {
+				  // for each column of c
+				  sum = 0.0f; // temporary value
+				  for (k=0; k<n; k++) {
+					  // dot product of row from a and column from b
+					  sum += a[i*n+ k]*b[k*p+j];
+				  }
 
-              result[i*n + (j+((tag+rank)%numtasks)*m)] = sum;
-          }
+				  result[i*n + (j+((tag+rank)%numtasks)*m)] = sum;
+			  }
 
-      }
-      tag++;
-      if(tag>=numtasks){
-          break; 
-      }else {
-       
-//           printf("tage is %d\n", tag); 
-      }
+		  }
+		  tag++;
+		  if(tag>=numtasks){
+			  break; 
+		  }else {
 
-      MPI_Isend(b,m*n,MPI_DOUBLE, (rank + numtasks - 1)%numtasks,0,MPI_COMM_WORLD,&reqs[0]);
-      MPI_Irecv(rcvBuffer,m*n,MPI_DOUBLE, (rank+1)%numtasks,0,MPI_COMM_WORLD, &reqs[1]); 
-      MPI_Waitall(2, reqs, stats);
-      b = rcvBuffer;
+			  //           printf("tage is %d\n", tag); 
+		  }
+
+		  MPI_Isend(b,m*n,MPI_DOUBLE, (rank + numtasks - 1)%numtasks,0,MPI_COMM_WORLD,&reqs[0]);
+		  MPI_Irecv(rcvBuffer,m*n,MPI_DOUBLE, (rank+1)%numtasks,0,MPI_COMM_WORLD, &reqs[1]); 
+		  MPI_Waitall(2, reqs, stats);
+		  b = rcvBuffer;
+	  }
+	  MatrixDone++;
+	  a = result;
+	  b = r[MatrixDone+1];
   }
  
 
