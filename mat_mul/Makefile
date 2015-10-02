@@ -1,11 +1,12 @@
 # 	test_mm.c gen_matrix.c my_malloc.c gen_matrix.h my_malloc.h
 debugPerg = 0
-testNumber = 0 
-matrixDim = 10000
-numberOfCores = 20 
+testNumber = 0
+matrixDim = 10
+numberOfCores = 16
 test_mm: *.c
-	mpicc mat_mul.c gen_matrix.c my_malloc.c -o mat_mul.out
-	gcc -g -DDEBUG test_mm.c gen_matrix.c my_malloc.c -o test_mm.out
+	icc -O3 mat_mul_cilk.c gen_matrix.c my_malloc.c -o mat_mul_cilk.out
+	mpicc -O3 mat_mul.c gen_matrix.c my_malloc.c -o mat_mul.out
+	gcc -g -DDEBUG test_mm.c gen_matrix.c my_malloc.c -O3 -o test_mm.out
 
 run_seq:
 	time ./test_mm.out $(debugPerg) $(testNumber) $(matrixDim)
@@ -18,7 +19,8 @@ run_debug:
 #	echo "----------------------------------------------"
 	#mpirun mat_mul 0 0 6
 # 	mpi_run  0 0 10
-
+run_cilk:
+	time ./mat_mul_cilk.out $(debugPerg) $(testNumber) $(matrixDim)
 
 run_performance:
 	./test_mm.out 1 0 100
