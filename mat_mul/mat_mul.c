@@ -39,6 +39,7 @@ void print_matrix(double *result, int numOfRows, int numOfCols) {
 //}
  
 main(int argc, char *argv[])  {
+  printf("asdf\n"); 
     MPI_Request reqs[2];
   MPI_Status stats[2];
   
