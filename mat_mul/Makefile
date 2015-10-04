@@ -1,15 +1,23 @@
 # 	test_mm.c gen_matrix.c my_malloc.c gen_matrix.h my_malloc.h
 debugPerg = 0
-testNumber = 0
-matrixDim = 10
+testNumber = 1
+matrixDim = 5
 numberOfCores = 16
+
+# ---- run the MPI version
 test_mm: *.c
+	mpicc -O3 mat_mul.c gen_matrix.c my_malloc.c -o test_mm.out
+
+# ---- run the cilk version
+cilk_mm: *.c
 	icc -O3 mat_mul_cilk.c gen_matrix.c my_malloc.c -o mat_mul_cilk.out
-	mpicc -O3 mat_mul.c gen_matrix.c my_malloc.c -o mat_mul.out
-	gcc -g -DDEBUG test_mm.c gen_matrix.c my_malloc.c -O3 -o test_mm.out
+
+seq:
+	gcc -O3 test_mm.c gen_matrix.c my_malloc.c -o seq.out
 
 run_seq:
 	time ./test_mm.out $(debugPerg) $(testNumber) $(matrixDim)
+
 #	echo "----------------------------------------------"
 	#mpirun mat_mul 0 0 6
 #
