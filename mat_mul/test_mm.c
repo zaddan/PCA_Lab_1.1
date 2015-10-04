@@ -71,19 +71,19 @@ main(int argc, char *argv[]) {
     // print each of the sub matrices
     for (i = 0; i < num_arg_matrices; ++i) {
     ; 
-       //  printf("argument matrix %d\n", i);
-      //print_matrix(r[i], matrix_dimension_size);
+      printf("argument matrix %d\n", i);
+      print_matrix(r[i], matrix_dimension_size);
     }
    ; 
-    ///printf("result matrix\n");
-    //print_matrix(result[n], matrix_dimension_size);
+    printf("result matrix\n");
+    print_matrix(result[n], matrix_dimension_size);
   } else {
     double sum = 0.0;
 
     for (i = 0; i < matrix_dimension_size * matrix_dimension_size; ++i) {
       sum += result[n][i];
     }
-    //printf("%f\n", sum);
+    printf("%f\n", sum);
   }
 }
 

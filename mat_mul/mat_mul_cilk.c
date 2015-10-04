@@ -3,7 +3,7 @@
 #include "my_malloc.h"
 #include <math.h>
 #include <cilk/cilk.h>
-
+#include "mpi.h"
 
 void print_matrix(double *result, int numOfRows, int numOfCols) {
   int x, y;
@@ -69,18 +69,20 @@ double *matmul (double *result, double **r, double** r2, int num_mats, int tag, 
 }
  
 main(int argc, char *argv[])  {
-  
+  int numCilkThread= 2; 
+    
   double **r;
   int i;
   int num_arg_matrices;
   int numtasks, dest, source, rc, count, tag=1;  
   char inmsg, outmsg='x';
-  int numCilkThread= 2; 
-  numtasks = numCilkThread;
   int debug_perf = atoi(argv[1]);
   int test_set = atoi(argv[2]);
   matrix_dimension_size = atoi(argv[3]);
-  
+  //MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
+/   int numCilkThread = atoi(argv[4]);
+  numtasks = numCilkThread;
+  printf("numtasks%d\n", numtasks); 
   /*printf("matrix_dimension_size %d\n", matrix_dimension_size);*/
   /*printf("numtasks%d\n", numtasks);*/
           
@@ -141,5 +143,17 @@ main(int argc, char *argv[])  {
           print_matrix_2(result[i], matrix_dimension_size/numtasks, matrix_dimension_size);
       } 
 
+  }else{
+      double *finalSum = (double*)my_malloc(sizeof(double) * );
+      
+      while(tag<numtasks) { 
+      result[tag] = cilk_spawn matmul(result[tag], r, r2, num_arg_matrices, tag, m, n, p);
+      tag++;
   }
+  cilk_sync;
+
+
+
+  }
+
 }

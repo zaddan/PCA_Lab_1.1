@@ -60,6 +60,7 @@ main(int argc, char *argv[])  {
 
   MPI_Init(&argc,&argv);
   MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
+  printf("here we go%d\n", numtasks); 
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
    
   int rank_x = rank/sqrt(numtasks);
