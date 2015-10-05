@@ -8,4 +8,4 @@
 #SBATCH --mail-type=begin  # email me when the job starts
 #SBATCH --mail-type=end    # email me when the job finishes
 
-time ./seq.out 0 0 10
+time ./seq.out 0 1 512 
