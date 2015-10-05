@@ -3,7 +3,6 @@
 #include "my_malloc.h"
 #include <math.h>
 #include <cilk/cilk.h>
-#include "mpi.h"
 
 void print_matrix(double *result, int numOfRows, int numOfCols) {
   int x, y;
@@ -29,7 +28,7 @@ void print_matrix_2(double *result, int numOfRows, int numOfCols) {
 
 
 
-double *matmul (double *result, double **r, double** r2, int num_mats, int tag, int m, int n, int p) {
+double *matmul (double *result, double **r, double** r2, int num_mats, int tag, int m, int n, int p, double * finalsum) {
     int MatrixDone = 0;
     double *a;
     double *b = r[1];
@@ -65,24 +64,35 @@ double *matmul (double *result, double **r, double** r2, int num_mats, int tag, 
         }
         b = r[MatrixDone+1];
     }
+    int i;
+    double temp=0;
+    for(i=0;i<m*n;i++){
+        temp+=result[i];
+    } 
+    finalsum[tag] = temp;
     return result;
 }
  
 main(int argc, char *argv[])  {
-  int numCilkThread= 2; 
+  //int numCilkThread= 16; 
     
   double **r;
   int i;
   int num_arg_matrices;
   int numtasks, dest, source, rc, count, tag=1;  
+  numtasks =1; 
   char inmsg, outmsg='x';
   int debug_perf = atoi(argv[1]);
   int test_set = atoi(argv[2]);
   matrix_dimension_size = atoi(argv[3]);
   //MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
-/   int numCilkThread = atoi(argv[4]);
-  numtasks = numCilkThread;
-  printf("numtasks%d\n", numtasks); 
+  int counter; 
+  for (counter = 15;  counter >0; counter--) {
+      if (matrix_dimension_size%counter == 0) {
+          numtasks = counter;
+          break; 
+      }
+  }
   /*printf("matrix_dimension_size %d\n", matrix_dimension_size);*/
   /*printf("numtasks%d\n", numtasks);*/
           
@@ -93,6 +103,7 @@ main(int argc, char *argv[])  {
   int resultColumnSize =  matrix_dimension_size;
   int resultRowSize =  matrix_dimension_size;
   double** result = (double **)my_malloc(sizeof(double) * numtasks);
+  double *sum = (double*) my_malloc(sizeof(double) * numtasks);
   for(i=0;i<numtasks;i++) {
       result [i] = (double *)my_malloc(sizeof(double) * resultRowSize* resultColumnSize/numtasks);
   }
@@ -118,7 +129,6 @@ main(int argc, char *argv[])  {
 //  exit(0);
 
   // ---- calculate the partial sum (multiplication stage)
-  double sum;
   int   j;
   int   k;
   int m = matrix_dimension_size/numtasks; 
@@ -128,7 +138,7 @@ main(int argc, char *argv[])  {
   double *b = r[1];
   tag = 0; //possible change later 
   while(tag<numtasks) { 
-      result[tag] = cilk_spawn matmul(result[tag], r, r2, num_arg_matrices, tag, m, n, p);
+      result[tag] = cilk_spawn matmul(result[tag], r, r2, num_arg_matrices, tag, m, n, p, sum);
       tag++;
   }
   cilk_sync;
@@ -138,22 +148,19 @@ main(int argc, char *argv[])  {
  
   int printed = 0;
   if (debug_perf == 0) { 
-      printf("result matrix\n"); 
       for(i=0; i<numtasks; i++){
           print_matrix_2(result[i], matrix_dimension_size/numtasks, matrix_dimension_size);
       } 
 
   }else{
-      double *finalSum = (double*)my_malloc(sizeof(double) * );
-      
+      double *finalSum = (double*)my_malloc(sizeof(double));
+      *finalSum = 0;
+      tag=0; 
       while(tag<numtasks) { 
-      result[tag] = cilk_spawn matmul(result[tag], r, r2, num_arg_matrices, tag, m, n, p);
-      tag++;
-  }
-  cilk_sync;
-
-
-
+          *finalSum+=sum[tag];
+          tag++;
+      }
+      printf("%f\n",*finalSum);
   }
 
 }

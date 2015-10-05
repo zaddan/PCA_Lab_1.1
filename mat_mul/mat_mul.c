@@ -84,6 +84,7 @@ main(int argc, char *argv[])  {
   int colHigh = matrix_dimension_size - 1;
   double* result = (double *)my_malloc(sizeof(double) * resultRowSize*resultColumnSize);
   
+  double *matrixToPrint = (double *)my_malloc(sizeof(double) * resultRowSize* resultColumnSize);
   // ---- generating two sub_matrices
   for (i = 0; i < num_arg_matrices; ++i) {
       r[i] = (double *)my_malloc(sizeof(double) * resultRowSize* resultColumnSize);
@@ -105,46 +106,55 @@ main(int argc, char *argv[])  {
       for (i = 0; i < num_arg_matrices; ++i) {
           if (i == 0) { //generate rows
               if (rank != 0) { 
-                  MPI_Recv(&printed,1,MPI_INT, (rank - 1), tag,MPI_COMM_WORLD, stats); 
-              }else{
+                  MPI_Send(r[i],matrix_dimension_size*matrix_dimension_size/numtasks,MPI_DOUBLE, 0, rank,MPI_COMM_WORLD); 
+              } 
+              else{
+                  if (i !=0) {
+                      printf("\n");
+                  }
                   printf("argument matrix %d\n", i);
+                  print_matrix(r[0], matrix_dimension_size/numtasks, matrix_dimension_size);
+                  int k; 
+                  for (k =1; k<numtasks; k++){
+                      MPI_Recv(matrixToPrint,matrix_dimension_size*matrix_dimension_size/numtasks,MPI_DOUBLE, k, k,MPI_COMM_WORLD, stats); 
+                      print_matrix(matrixToPrint, matrix_dimension_size/numtasks, matrix_dimension_size);
+                  }
+                  //printf("\n"); 
               }
-              print_matrix(r[i], matrix_dimension_size/numtasks, matrix_dimension_size);
-              if (rank != numtasks - 1) { 
-                  MPI_Send(&printed,1,MPI_INT, (rank + 1), tag,MPI_COMM_WORLD); 
-              }
-              if (rank == numtasks - 1) { 
-                  printf("\n"); 
-              }
-              MPI_Barrier(MPI_COMM_WORLD); 
-          
           }else{
               int j; 
               printed = 0;
               for (j =0; j < matrix_dimension_size; j++) {
                   if (rank != 0) { 
-                      MPI_Recv(&printed,1,MPI_INT, (rank - 1), tag,MPI_COMM_WORLD, stats); 
-                  }else{
-                      if( j==0) 
-                      { 
+                      MPI_Send(r[i]+j*matrix_dimension_size/numtasks, matrix_dimension_size/numtasks,MPI_DOUBLE, 0, rank, MPI_COMM_WORLD); 
+                  } else{
+                      if (j ==0) {
+                          if (i !=1) {
+                            printf("\n"); 
+                          } 
+                          printf("\n"); 
+                          fflush(stdout); 
                           printf("argument matrix %d\n", i);
+                      
                       }
-                  } 
-                  print_matrix2((r[i]+j*matrix_dimension_size/numtasks), 1, matrix_dimension_size/numtasks);
-                  if (rank != numtasks - 1) { 
-                      MPI_Send(&printed,1,MPI_INT, (rank + 1), tag,MPI_COMM_WORLD); 
-                  }
-                  if (rank == numtasks -1)  {
-                      if (j == matrix_dimension_size -1) {
-                      printf("\n"); 
+                      if (j!=0) { 
+                          printf("\n"); 
                       } 
-                      printf("\n"); 
-                  } 
-                  MPI_Barrier(MPI_COMM_WORLD); 
+                      int k =0; 
+                      print_matrix2(r[i]+j*matrix_dimension_size/numtasks, 1, matrix_dimension_size/numtasks);
+                      for (k =1; k<numtasks; k++){
+                          MPI_Recv(matrixToPrint,matrix_dimension_size/numtasks,MPI_DOUBLE, k, k,MPI_COMM_WORLD, stats); 
+                          print_matrix2(matrixToPrint, matrix_dimension_size/numtasks, 1);
+                          
+                      }
+                  }
+
               }
-          }
-      } 
-  }
+          } 
+  
+      }
+   fflush(stdout); 
+  } 
   // --- print what you generated
   int printGenerated = 0;
   int printFull = 0;
@@ -247,23 +257,6 @@ main(int argc, char *argv[])  {
           break;
       }
       
-   if (debug_perf == 0) {
-      int printed = 0;
-      if (rank != 0) { 
-          MPI_Recv(&printed,1,MPI_INT, (rank - 1), tag,MPI_COMM_WORLD, stats); 
-      }else{
-          printf("result matrix\n");
-      }
-      print_matrix(result, resultRowSize, resultColumnSize);
-
-      if (rank != numtasks - 1) { 
-          MPI_Send(&printed,1,MPI_INT, (rank + 1), tag,MPI_COMM_WORLD); 
-      } 
-      if (rank == numtasks - 1) { 
-          printf("\n"); 
-      }
-      MPI_Barrier(MPI_COMM_WORLD); 
-  }    
       a = result;
 	  result = r[MatrixDone - 1];
       b = r[MatrixDone+1];
@@ -273,18 +266,42 @@ main(int argc, char *argv[])  {
   if (debug_perf == 0) {
       int printed = 0;
       if (rank != 0) { 
-          MPI_Recv(&printed,1,MPI_INT, (rank - 1), tag,MPI_COMM_WORLD, stats); 
-      }else{
-          printf("result matrix\n");
-      }
-      print_matrix(result, resultRowSize, resultColumnSize);
-
-      if (rank != numtasks - 1) { 
-          MPI_Send(&printed,1,MPI_INT, (rank + 1), tag,MPI_COMM_WORLD); 
+          MPI_Send(result,matrix_dimension_size*matrix_dimension_size/numtasks,MPI_DOUBLE, 0, rank,MPI_COMM_WORLD); 
       } 
-      if (rank == numtasks - 1) { 
+      else{
+          printf("\n"); 
+          printf("\n"); 
+
+//          if (i !=0) {
+//              printf("\n");
+//          }
+          printf("result matrix\n");
+          print_matrix(result, matrix_dimension_size/numtasks, matrix_dimension_size);
+          int k; 
+          for (k =1; k<numtasks; k++){
+              MPI_Recv(matrixToPrint,matrix_dimension_size*matrix_dimension_size/numtasks,MPI_DOUBLE, k, k,MPI_COMM_WORLD, stats); 
+              print_matrix(matrixToPrint, matrix_dimension_size/numtasks, matrix_dimension_size);
+          }
           printf("\n"); 
       }
+
+      
+//      
+//      
+//      
+//      if (rank != 0) { 
+//          MPI_Recv(&printed,1,MPI_INT, (rank - 1), tag,MPI_COMM_WORLD, stats); 
+//      }else{
+//          printf("result matrix\n");
+//      }
+//      print_matrix(result, resultRowSize, resultColumnSize);
+//
+//      if (rank != numtasks - 1) { 
+//          MPI_Send(&printed,1,MPI_INT, (rank + 1), tag,MPI_COMM_WORLD); 
+//      } 
+//      if (rank == numtasks - 1) { 
+//          printf("\n"); 
+//      }
       MPI_Barrier(MPI_COMM_WORLD); 
   }     
   else { 
@@ -302,7 +319,7 @@ main(int argc, char *argv[])  {
       MPI_Reduce(finalSum, totalFinalSum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
       MPI_Barrier(MPI_COMM_WORLD); 
       if(rank ==0){
-          printf("total finial %f\n", *totalFinalSum);
+          printf("%f\n", *totalFinalSum);
       }
   }
   MPI_Finalize();
