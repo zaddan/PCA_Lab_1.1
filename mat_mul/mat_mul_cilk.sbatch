@@ -8,4 +8,4 @@
 #SBATCH --mail-type=begin  # email me when the job starts
 #SBATCH --mail-type=end    # email me when the job finishes
 
-time ./mat_mul_cilk.out 0 0 10
+time ./mat_mul_cilk.out 1 1 15
