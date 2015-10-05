@@ -60,7 +60,7 @@ main(int argc, char *argv[])  {
 
   MPI_Init(&argc,&argv);
   MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
-  printf("here we go%d\n", numtasks); 
+  //printf("here we go%d\n", numtasks); 
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
    
   int rank_x = rank/sqrt(numtasks);
@@ -238,14 +238,34 @@ main(int argc, char *argv[])  {
 		  MPI_Isend(b,m*n,MPI_DOUBLE, (rank + numtasks - 1)%numtasks,0,MPI_COMM_WORLD,&reqs[0]);
 		  MPI_Irecv(rcvBuffer,m*n,MPI_DOUBLE, (rank+1)%numtasks,0,MPI_COMM_WORLD, &reqs[1]); 
 		  MPI_Waitall(2, reqs, stats);
-		  b = rcvBuffer;
-	  }
+		  double *temp = b; 
+          b = rcvBuffer;
+	      rcvBuffer = temp; 
+      }
       MatrixDone++;
 	  if (MatrixDone == (num_arg_matrices -1)) {
           break;
       }
+      
+   if (debug_perf == 0) {
+      int printed = 0;
+      if (rank != 0) { 
+          MPI_Recv(&printed,1,MPI_INT, (rank - 1), tag,MPI_COMM_WORLD, stats); 
+      }else{
+          printf("result matrix\n");
+      }
+      print_matrix(result, resultRowSize, resultColumnSize);
+
+      if (rank != numtasks - 1) { 
+          MPI_Send(&printed,1,MPI_INT, (rank + 1), tag,MPI_COMM_WORLD); 
+      } 
+      if (rank == numtasks - 1) { 
+          printf("\n"); 
+      }
+      MPI_Barrier(MPI_COMM_WORLD); 
+  }    
       a = result;
-	  result = r[MatrixDone];
+	  result = r[MatrixDone - 1];
       b = r[MatrixDone+1];
   }
  
@@ -275,11 +295,14 @@ main(int argc, char *argv[])  {
           *finalSum +=result[count];
       }
 
+      MPI_Barrier(MPI_COMM_WORLD); 
       double *totalFinalSum = (double*)my_malloc(sizeof(double) * 1);
+      *totalFinalSum = 0; 
+      //printf("here %f\n rank: %d", *finalSum, rank) ;
       MPI_Reduce(finalSum, totalFinalSum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
       MPI_Barrier(MPI_COMM_WORLD); 
       if(rank ==0){
-          printf("%f\n", *totalFinalSum);
+          printf("total finial %f\n", *totalFinalSum);
       }
   }
   MPI_Finalize();
